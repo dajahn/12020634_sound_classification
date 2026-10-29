@@ -1,0 +1,23 @@
+# deep learning
+torch
+torchaudio
+torchvision
+torchcodec
+#sound processing
+librosa
+soundfile
+#data handling
+numpy
+pandas
+#metrics
+scikit-learn
+#plotting
+matplotlib
+#progesstracking
+tqdm
+#webapp
+streamlit
+#testing
+pytest
+#yaml support
+PyYAML

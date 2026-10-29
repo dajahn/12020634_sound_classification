@@ -1,0 +1,27 @@
+dataset:
+  root_dir: data/ESC-50
+  metadata_path: data/ESC-50/meta/esc50.csv
+  audio_dir: data/ESC-50/audio
+  num_classes: 50
+
+splits:
+  train_folds: [1,2,3]
+  validation_folds: [4]
+  tests_folds: [5]
+
+audio:
+  sample_rate_cnn: 44100
+  sample_rate_panns: 32000
+  duration_seconds: 5.0
+  mono: true
+
+feature: # cause the audio will be converted into log-mel spectrogram
+  m_mels: 128 # controls number of mel-frequency bands
+  n_fft: 2048 # size of the window used for short-time fourier transformation ->  how much audio is analyzed at once
+  hop_length: 512 # how far the analysis window moves between frames
+
+training:
+  batch_size: 32
+  learning_rate: 0.001
+  epochs: 50
+  seed: 42
