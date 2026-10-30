@@ -16,7 +16,7 @@ audio:
   mono: true
 
 feature: # cause the audio will be converted into log-mel spectrogram
-  m_mels: 128 # controls number of mel-frequency bands
+  n_mels: 128 # controls number of mel-frequency bands
   n_fft: 2048 # size of the window used for short-time fourier transformation ->  how much audio is analyzed at once
   hop_length: 512 # how far the analysis window moves between frames
 
