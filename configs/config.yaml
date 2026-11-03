@@ -7,7 +7,7 @@ dataset:
 splits:
   train_folds: [1,2,3]
   validation_folds: [4]
-  tests_folds: [5]
+  test_folds: [5]
 
 audio:
   sample_rate_cnn: 44100
