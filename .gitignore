@@ -1,2 +1,3 @@
 /data/ESC-50/*
 /.venvWsl
+/models/panns/Cnn14_mAP=0.431.pth
