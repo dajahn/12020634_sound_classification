@@ -62,7 +62,7 @@ class ConvBlock(nn.Module):
 
 class CNNBaseline(nn.Module):
     """
-    Compact CNN baseline for ESC-50 classification from normalized log-mel spectrograms.
+    Compact CNN baseline for classification from normalized log-mel spectrograms.
 
     The model is intended for the CNN pipeline
     audio -> normalized log-mel spectrogram -> compact CNN -> 50-class logits.
@@ -164,23 +164,9 @@ def build_cnn_baseline(
 ) -> CNNBaseline:
     """
     Factory function for creating the compact CNN baseline.
-
-    This keeps training and application code independent of the concrete class
-    constructor and makes it easier to swap model settings later.
     """
     return CNNBaseline(
         num_classes=num_classes,
         input_channels=input_channels,
         dropout=dropout,
     )
-
-
-if __name__ == "__main__":
-    model = build_cnn_baseline(num_classes=50)
-
-    dummy_batch = torch.randn(4, 1, 128, 431)
-    logits = model(dummy_batch)
-
-    print(model)
-    print(f"Input shape:  {tuple(dummy_batch.shape)}")
-    print(f"Output shape: {tuple(logits.shape)}")

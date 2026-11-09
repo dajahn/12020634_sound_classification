@@ -5,9 +5,7 @@ from typing import Callable, Literal
 import pandas as pd
 import torch
 import yaml
-from numba.cuda.cudadrv.nvvm import set_cuda_kernel
 from torch.utils.data import Dataset
-from torch.utils.data.dataset import _T_co
 
 from src.preprocessing import LogMelPreprocessor, PannsPreprocessor
 
@@ -19,11 +17,11 @@ class ESC50Dataset(Dataset):
        PyTorch Dataset for the ESC-50 environmental sound classification dataset.
 
        The dataset:
-       - reads ESC-50 metadata from esc50.csv
+       - reads ESC-50 metadata
        - filters samples by selected folds
        - builds full paths to audio files
        - returns processed audio features and numeric labels
-       - can optionally return metadata such as filename, category, fold, and target
+       - can optionally return metadata
 
        Supported modes:
        - "cnn": returns normalized log-mel spectrograms using LogMelPreprocessor
@@ -55,6 +53,7 @@ class ESC50Dataset(Dataset):
                    return_metadata:
                        If True, __getitem__ returns metadata together with features and label.
         """
+        config_path = Path(config_path)
         self.config_path = config_path
         self.config = self._load_config(self.config_path)
         dataset_config = self.config["dataset"]
@@ -160,3 +159,67 @@ class ESC50Dataset(Dataset):
             "audio_path": str(audio_path)
         }
         return features, label, metadata
+
+class PannsEmbeddingDataset(Dataset):
+    """
+    Dataset for precomputed PANNs embeddings.
+
+    Expected file format:
+        {
+            "embeddings": Tensor[num_examples, embedding_dim],
+            "labels": Tensor[num_examples]
+        }
+
+    These files are produced by running: python -m src.training.precompute_panns_embeddings
+    """
+
+    def __init__(self, embeddings_path: str | Path) -> None:
+        embeddings_path = Path(embeddings_path)
+
+        if not embeddings_path.exists():
+            raise FileNotFoundError(
+                f"PANNs embedding file not found: {embeddings_path}. "
+                "Run `python -m src.training.precompute_panns_embeddings` first."
+            )
+
+        data = torch.load(
+            embeddings_path,
+            map_location="cpu",
+            weights_only=False,
+        )
+
+        if not isinstance(data, dict):
+            raise TypeError(
+                f"Expected a dictionary in {embeddings_path}, got {type(data).__name__}"
+            )
+
+        if "embeddings" not in data or "labels" not in data:
+            raise ValueError(
+                f"Embedding file {embeddings_path} must contain 'embeddings' and 'labels'."
+            )
+
+        self.embeddings = data["embeddings"].to(torch.float32)
+        self.labels = data["labels"].to(torch.long)
+
+        if self.embeddings.ndim != 2:
+            raise ValueError(
+                f"Expected embeddings with shape [num_examples, embedding_dim], "
+                f"got {tuple(self.embeddings.shape)}"
+            )
+
+        if self.labels.ndim != 1:
+            raise ValueError(
+                f"Expected labels with shape [num_examples], got {tuple(self.labels.shape)}"
+            )
+
+        if self.embeddings.shape[0] != self.labels.shape[0]:
+            raise ValueError(
+                "Number of embeddings does not match number of labels: "
+                f"{self.embeddings.shape[0]} != {self.labels.shape[0]}"
+            )
+
+    def __len__(self) -> int:
+        return self.labels.shape[0]
+
+    def __getitem__(self, index: int) -> tuple[torch.Tensor, torch.Tensor]:
+        return self.embeddings[index], self.labels[index]

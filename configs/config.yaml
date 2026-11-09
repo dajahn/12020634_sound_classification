@@ -25,3 +25,14 @@ training:
   learning_rate: 0.001
   epochs: 50
   seed: 42
+
+# note: the pretrained model can be downloaded under https://zenodo.org/records/3987831
+
+panns:
+  checkpoint_path: models/panns/Cnn14_mAP=0.431.pth
+  embedding_dim: 2048
+  freeze_feature_extractor: true
+  train_embeddings_path: data/preprocessed/panns_embeddings/train.pt
+  validation_embeddings_path: data/preprocessed/panns_embeddings/validation.pt
+  test_embeddings_path: data/preprocessed/panns_embeddings/test.pt
+

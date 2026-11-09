@@ -21,3 +21,5 @@ streamlit
 pytest
 #yaml support
 PyYAML
+# PANNs model for inference
+panns_inference
