@@ -87,11 +87,14 @@ def extract_split_embeddings(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Precompute PANNs embeddings.")
     parser.add_argument("--config", default="configs/config.yaml")
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--num-workers", type=int, default=0)
     args = parser.parse_args()
 
     config = load_config(args.config)
+    if torch.backends.mps.is_available():
+        device = "mps"  # Use Metal Performance Shaders on macOS
+    else:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
 
     batch_size = int(config["training"]["batch_size"])
     checkpoint_path = config.get("panns", {}).get("checkpoint_path")
@@ -106,7 +109,7 @@ def main() -> None:
             output_path=f"data/preprocessed/panns_embeddings/{split}.pt",
             batch_size=batch_size,
             checkpoint_path=checkpoint_path,
-            device=args.device,
+            device=device,
             num_workers=args.num_workers,
         )
 

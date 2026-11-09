@@ -1,3 +1,5 @@
 /data/ESC-50/*
+/data/preprocessed/*
+./models/panns/*
 /.venvWsl
-/models/panns/Cnn14_mAP=0.431.pth
+/.idea

@@ -55,8 +55,10 @@ def get_device() -> torch.device:
     """
     Select GPU when available, otherwise fall back to CPU.
     """
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu") # TODO add metal for mac
-
+    if torch.backends.mps.is_available():
+        return torch.device("mps")  # Use Metal Performance Shaders on macOS
+    else:
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def build_cnn_dataloader(
     split: str,
@@ -256,6 +258,8 @@ def train_cnn_baseline(
 
     set_seed(seed)
     device = get_device()
+
+    print(f"Using device: {device}")
 
     train_loader = build_cnn_dataloader(
         split="train",
